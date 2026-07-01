@@ -133,8 +133,18 @@ h1, h2 { font-family: 'Playfair Display', serif; line-height: 1.15; }
 .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
 
 /* ── Phone mockup ────────────────────────────── */
+.phone-demo-label {
+  display: none;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+  text-align: center;
+}
 .phone-wrapper {
-  display: flex; justify-content: center; align-items: center;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
   position: relative;
 }
 .phone-glow {
@@ -520,19 +530,56 @@ footer .logo { color: var(--gold); font-family: 'Playfair Display', serif; font-
 
 /* ── Responsive ──────────────────────────────── */
 @media (max-width: 900px) {
-  nav { padding: 16px 24px; }
-  section { padding: 80px 24px; }
-  #hero { grid-template-columns: 1fr; padding: 120px 24px 60px; }
-  .phone { display: none; }
-  #stats-strip { padding: 0 24px 60px; }
+  nav { padding: 16px 20px; }
+  section { padding: 72px 20px; }
+
+  /* Hero — single column, centered */
+  #hero {
+    grid-template-columns: 1fr;
+    padding: 110px 20px 50px;
+    gap: 0;
+    text-align: center;
+    min-height: auto;
+  }
+  .hero-left h1 { font-size: clamp(34px, 9vw, 52px); margin-bottom: 18px; }
+  .hero-left .sub { font-size: 16px; margin: 0 auto 32px; max-width: 100%; }
+  .hero-btns { justify-content: center; flex-direction: column; align-items: center; gap: 12px; }
+  .btn-primary, .btn-secondary { width: 100%; max-width: 320px; text-align: center; padding: 16px 24px; }
+
+  /* Phone — centered below hero text, proper sizing */
+  .phone-demo-label { display: block; }
+  .phone-wrapper {
+    margin-top: 44px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .phone-glow { width: 220px; height: 300px; }
+  .phone {
+    width: 220px;
+    border-radius: 36px;
+    padding: 10px;
+    transform: none;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.1),
+      0 24px 60px rgba(0,0,0,0.7),
+      inset 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  .phone-inner { height: 390px; border-radius: 28px; }
+  .bubble { font-size: 11px; }
+
+  /* Rest of sections */
+  #stats-strip { padding: 0 20px 56px; }
   .stats-grid { grid-template-columns: 1fr; }
+  .stat-item { padding: 28px 20px; }
+  .stat-number { font-size: 42px; }
   .problem-grid { grid-template-columns: 1fr; gap: 40px; }
   .steps-grid { grid-template-columns: 1fr; }
   .steps-grid::before { display: none; }
   .features-grid { grid-template-columns: 1fr; }
   .pricing-grid { grid-template-columns: 1fr; }
-  #cta { padding: 80px 24px; }
-  .cta-box { padding: 40px 24px; }
+  #cta { padding: 72px 20px; }
+  .cta-box { padding: 40px 20px; }
 }
 </style>
 </head>
@@ -565,6 +612,7 @@ footer .logo { color: var(--gold); font-family: 'Playfair Display', serif; font-
   </div>
 
   <div class="phone-wrapper reveal-right">
+    <div class="phone-demo-label">Live Demo — Running Now</div>
     <div class="phone-glow"></div>
     <div class="phone">
       <div class="phone-inner">

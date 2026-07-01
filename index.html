@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AEasyI — Real Estate AI | Respond in 90 Seconds. Close More Deals.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+/* ── Reset & Base ─────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #05080F;
+  --bg2: #0A1020;
+  --gold: #C9A84C;
+  --gold-light: #E8C870;
+  --gold-dim: rgba(201,168,76,0.15);
+  --text: #F0EDE8;
+  --sub: #8A9BB5;
+  --card: rgba(255,255,255,0.04);
+  --border: rgba(201,168,76,0.2);
+  --white-a: rgba(255,255,255,0.06);
+  --green-wa: #25D366;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+a { text-decoration: none; color: inherit; }
+
+/* ── Canvas (3D background) ───────────────────── */
+#bg-canvas {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0; pointer-events: none;
+  opacity: 0.55;
+}
+
+/* ── Nav ─────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 60px;
+  background: rgba(5,8,15,0.7);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(201,168,76,0.1);
+}
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+.nav-logo span { color: var(--text); font-weight: 400; }
+.nav-cta {
+  background: var(--gold);
+  color: #05080F;
+  padding: 10px 28px;
+  border-radius: 4px;
+  font-size: 14px; font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+.nav-cta:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+/* ── Section layout ───────────────────────────── */
+section {
+  position: relative; z-index: 1;
+  padding: 120px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.section-label {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 20px;
+}
+h1, h2 { font-family: 'Playfair Display', serif; line-height: 1.15; }
+
+/* ── Hero ────────────────────────────────────── */
+#hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  padding-top: 140px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.hero-left h1 {
+  font-size: clamp(42px, 5vw, 68px);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+.hero-left h1 .gold { color: var(--gold); }
+.hero-left .sub {
+  font-size: 18px; color: var(--sub);
+  font-weight: 300; line-height: 1.7;
+  max-width: 480px; margin-bottom: 40px;
+}
+.hero-btns { display: flex; gap: 16px; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--gold);
+  color: #05080F;
+  padding: 16px 36px;
+  border-radius: 4px;
+  font-size: 15px; font-weight: 600;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+.btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(201,168,76,0.3); }
+.btn-secondary {
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 16px 36px;
+  border-radius: 4px;
+  font-size: 15px; font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+.btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── Phone mockup ────────────────────────────── */
+.phone-wrapper {
+  display: flex; justify-content: center; align-items: center;
+  position: relative;
+}
+.phone-glow {
+  position: absolute;
+  width: 300px; height: 400px;
+  background: radial-gradient(ellipse, rgba(37,211,102,0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+@keyframes pulse-glow {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+.phone {
+  width: 280px;
+  background: #1C1C1E;
+  border-radius: 44px;
+  padding: 12px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.1),
+    0 40px 80px rgba(0,0,0,0.8),
+    inset 0 0 0 1px rgba(255,255,255,0.05);
+  position: relative;
+  z-index: 2;
+  transform: perspective(1000px) rotateY(-8deg) rotateX(4deg);
+  transition: transform 0.6s ease;
+}
+.phone:hover { transform: perspective(1000px) rotateY(0deg) rotateX(0deg); }
+.phone-inner {
+  background: #F0F0F0;
+  border-radius: 36px;
+  overflow: hidden;
+  height: 500px;
+  display: flex; flex-direction: column;
+}
+.wa-header {
+  background: #075E54;
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.wa-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), #8B6914);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: white;
+  flex-shrink: 0;
+}
+.wa-name { color: white; font-size: 14px; font-weight: 600; }
+.wa-status { color: rgba(255,255,255,0.7); font-size: 11px; }
+.wa-messages {
+  flex: 1; background: #E5DDD5;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4c9bc' fill-opacity='0.3'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  padding: 16px 12px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  gap: 8px;
+}
+.bubble {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.4;
+  position: relative;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.bubble.visible { opacity: 1; transform: translateY(0); }
+.bubble.user {
+  background: #DCF8C6;
+  color: #1a1a1a;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+.bubble.bot {
+  background: white;
+  color: #1a1a1a;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+.typing {
+  background: white;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border-bottom-left-radius: 4px;
+  display: inline-flex; gap: 4px; align-items: center;
+  align-self: flex-start;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.typing.visible { opacity: 1; }
+.typing span {
+  width: 6px; height: 6px;
+  background: #999; border-radius: 50%;
+  animation: typing-bounce 1.4s infinite ease-in-out;
+}
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-5px); }
+}
+.tick { color: #4CAF50; font-size: 10px; margin-left: 4px; }
+
+/* ── Stats strip ─────────────────────────────── */
+#stats-strip {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 60px 80px;
+  position: relative; z-index: 1;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.stat-item {
+  background: var(--bg2);
+  padding: 40px;
+  text-align: center;
+}
+.stat-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 52px; font-weight: 900;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.stat-label { font-size: 14px; color: var(--sub); font-weight: 400; }
+
+/* ── Problem section ─────────────────────────── */
+.problem-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.problem-left h2 {
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+.problem-left p { color: var(--sub); font-size: 17px; line-height: 1.8; margin-bottom: 20px; }
+.pain-cards { display: flex; flex-direction: column; gap: 16px; }
+.pain-card {
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex; align-items: flex-start; gap: 16px;
+  transition: border-color 0.3s;
+}
+.pain-card:hover { border-color: var(--border); }
+.pain-icon {
+  width: 40px; height: 40px; flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--gold-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.pain-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.pain-card p { font-size: 13px; color: var(--sub); line-height: 1.5; }
+
+/* ── How it works ────────────────────────────── */
+#how { background: linear-gradient(180deg, transparent, rgba(201,168,76,0.03), transparent); }
+#how h2 {
+  font-size: clamp(32px, 4vw, 52px);
+  text-align: center; margin-bottom: 16px;
+}
+#how .section-sub {
+  text-align: center; color: var(--sub);
+  font-size: 17px; margin-bottom: 72px;
+}
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  position: relative;
+}
+.steps-grid::before {
+  content: '';
+  position: absolute;
+  top: 52px; left: calc(16.7% + 20px); right: calc(16.7% + 20px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  z-index: 0;
+}
+.step {
+  text-align: center;
+  padding: 40px 28px;
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
+  position: relative; z-index: 1;
+  transition: all 0.4s ease;
+}
+.step:hover {
+  border-color: var(--border);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(201,168,76,0.08);
+}
+.step-num {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 28px;
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700;
+  color: var(--gold);
+}
+.step h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+.step p { font-size: 14px; color: var(--sub); line-height: 1.7; }
+
+/* ── What they get ───────────────────────────── */
+#features h2 {
+  font-size: clamp(32px, 4vw, 52px);
+  margin-bottom: 60px;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+.feature-card {
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
+  padding: 36px;
+  transition: all 0.4s ease;
+  position: relative; overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.feature-card:hover::before { opacity: 1; }
+.feature-card:hover {
+  border-color: var(--border);
+  transform: translateY(-4px);
+}
+.feature-icon { font-size: 32px; margin-bottom: 20px; }
+.feature-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
+.feature-card p { font-size: 14px; color: var(--sub); line-height: 1.7; }
+.feature-tag {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 4px 12px;
+  background: var(--gold-dim);
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 100px;
+  font-size: 11px; font-weight: 600;
+  color: var(--gold); letter-spacing: 0.5px;
+}
+
+/* ── Pricing ─────────────────────────────────── */
+#pricing {
+  background: linear-gradient(180deg, transparent, rgba(201,168,76,0.025), transparent);
+}
+#pricing h2 { font-size: clamp(32px, 4vw, 52px); text-align: center; margin-bottom: 16px; }
+#pricing .section-sub { text-align: center; color: var(--sub); font-size: 17px; margin-bottom: 64px; }
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 1fr;
+  gap: 24px;
+  max-width: 1100px; margin: 0 auto;
+}
+@media (max-width: 900px) {
+  .pricing-grid { grid-template-columns: 1fr; }
+}
+.pricing-card {
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  padding: 44px 40px;
+  transition: all 0.4s ease;
+}
+.pricing-card.featured {
+  background: linear-gradient(135deg, rgba(201,168,76,0.1), rgba(201,168,76,0.03));
+  border-color: var(--gold);
+  position: relative;
+}
+.pricing-card.featured::before {
+  content: 'MOST POPULAR';
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  background: var(--gold); color: #05080F;
+  padding: 4px 16px; border-radius: 100px;
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+}
+.pricing-card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.pricing-label { font-size: 12px; font-weight: 600; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 12px; }
+.pricing-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+.pricing-desc { color: var(--sub); font-size: 14px; margin-bottom: 28px; }
+.pricing-amount {
+  font-family: 'Playfair Display', serif;
+  font-size: 48px; font-weight: 900;
+  color: var(--gold); line-height: 1;
+}
+.pricing-amount sup { font-size: 24px; vertical-align: top; margin-top: 8px; }
+.pricing-amount span { font-family: 'Inter', sans-serif; font-size: 16px; color: var(--sub); font-weight: 400; }
+.pricing-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 28px 0; }
+.pricing-items { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
+.pricing-items li {
+  font-size: 14px; color: var(--sub);
+  display: flex; align-items: center; gap: 10px;
+}
+.pricing-items li::before {
+  content: '✓';
+  color: var(--gold); font-weight: 700;
+  font-size: 13px; flex-shrink: 0;
+}
+.btn-pricing {
+  display: block; width: 100%;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 15px; font-weight: 600;
+  transition: all 0.3s ease;
+}
+.btn-pricing-outline {
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-pricing-outline:hover { border-color: var(--gold); color: var(--gold); }
+.btn-pricing-solid {
+  background: var(--gold); color: #05080F;
+}
+.btn-pricing-solid:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+/* ── CTA ─────────────────────────────────────── */
+#cta {
+  text-align: center;
+  padding: 120px 60px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+#cta h2 {
+  font-size: clamp(36px, 5vw, 64px);
+  margin-bottom: 20px;
+  line-height: 1.15;
+}
+#cta p { color: var(--sub); font-size: 18px; margin-bottom: 48px; }
+.cta-box {
+  background: linear-gradient(135deg, rgba(201,168,76,0.12), rgba(201,168,76,0.03));
+  border: 1px solid var(--gold);
+  border-radius: 24px;
+  padding: 60px;
+}
+.cta-sub { font-size: 14px; color: var(--sub); margin-top: 16px; }
+
+/* ── Footer ──────────────────────────────────── */
+footer {
+  position: relative; z-index: 1;
+  text-align: center;
+  padding: 40px 60px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  color: var(--sub); font-size: 13px;
+}
+footer .logo { color: var(--gold); font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 8px; }
+
+/* ── Scroll animations ───────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-left { opacity: 0; transform: translateX(-40px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.reveal-left.visible { opacity: 1; transform: translateX(0); }
+.reveal-right { opacity: 0; transform: translateX(40px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 900px) {
+  nav { padding: 16px 24px; }
+  section { padding: 80px 24px; }
+  #hero { grid-template-columns: 1fr; padding: 120px 24px 60px; }
+  .phone { display: none; }
+  #stats-strip { padding: 0 24px 60px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .problem-grid { grid-template-columns: 1fr; gap: 40px; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .steps-grid::before { display: none; }
+  .features-grid { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  #cta { padding: 80px 24px; }
+  .cta-box { padding: 40px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 3D canvas background -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-logo">AEasy<span>I</span></div>
+  <a href="https://calendly.com/aeasyihub/30min" class="nav-cta" target="_blank">Book a Free Demo</a>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-left reveal-left">
+    <div class="section-label">AI Automation for Real Estate</div>
+    <h1>Your next lead<br>messages at <span class="gold">2am.</span><br>We respond.</h1>
+    <p class="sub">
+      Dubai's real estate market runs 24/7. Your competitors do too.
+      AEasyI qualifies every WhatsApp inquiry in under 90 seconds —
+      books viewings, captures contacts, and notifies your agent.
+      Automatically.
+    </p>
+    <div class="hero-btns">
+      <a href="https://calendly.com/aeasyihub/30min" class="btn-primary" target="_blank">Book a Free Demo</a>
+      <a href="#how" class="btn-secondary">See How It Works</a>
+    </div>
+  </div>
+
+  <div class="phone-wrapper reveal-right">
+    <div class="phone-glow"></div>
+    <div class="phone">
+      <div class="phone-inner">
+        <div class="wa-header">
+          <div class="wa-avatar">DP</div>
+          <div>
+            <div class="wa-name">Dubai Premier Properties</div>
+            <div class="wa-status">● Online</div>
+          </div>
+        </div>
+        <div class="wa-messages" id="chat">
+          <!-- Bubbles injected by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats strip -->
+<div id="stats-strip">
+  <div class="stats-grid">
+    <div class="stat-item reveal">
+      <div class="stat-number" data-target="90">0</div>
+      <div class="stat-label">Second average response time</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:0.15s">
+      <div class="stat-number" data-target="24">0</div>
+      <div class="stat-label">Hours a day, 7 days a week</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:0.3s">
+      <div class="stat-number" data-prefix="AED " data-target="1500">0</div>
+      <div class="stat-label">2-week live trial — no strings attached</div>
+    </div>
+  </div>
+</div>
+
+<!-- Problem -->
+<section>
+  <div class="problem-grid">
+    <div class="problem-left reveal-left">
+      <div class="section-label">The Problem</div>
+      <h2>Slow response<br>kills deals.</h2>
+      <p>
+        The average Dubai agent takes <strong>3+ hours</strong> to respond to a property inquiry.
+        By then, the lead has spoken to two other agencies and made a decision.
+      </p>
+      <p>
+        In a market where a single deal is worth AED 20,000–100,000 in commission,
+        every missed response is money left in a competitor's pocket.
+      </p>
+    </div>
+    <div class="pain-cards reveal-right">
+      <div class="pain-card">
+        <div class="pain-icon">⏱</div>
+        <div>
+          <h4>3-Hour Average Response</h4>
+          <p>Bayut and Property Finder leads expect a response within minutes. 3 hours means the deal is gone.</p>
+        </div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">🌙</div>
+        <div>
+          <h4>Inquiries at All Hours</h4>
+          <p>International buyers in different time zones send messages at 11pm, 2am, 6am. No agent is awake.</p>
+        </div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">📋</div>
+        <div>
+          <h4>Zero Lead Capture</h4>
+          <p>Most agencies have no CRM. Leads arrive, get forgotten, and disappear — along with the commission.</p>
+        </div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">🔄</div>
+        <div>
+          <h4>Repetitive Manual Work</h4>
+          <p>Every agent answers the same 5 questions 20 times a day. That time costs AED 50,000+ per agent per year.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section id="how">
+  <div class="section-label" style="text-align:center">How It Works</div>
+  <h2>From inquiry to booked<br>viewing in 4 minutes.</h2>
+  <p class="section-sub">No agents needed. No new software to learn. Works on WhatsApp your team already uses.</p>
+  <div class="steps-grid">
+    <div class="step reveal" style="transition-delay:0s">
+      <div class="step-num">1</div>
+      <h3>Lead Messages Your Number</h3>
+      <p>A prospect sees your listing on Bayut, Property Finder, or Instagram and WhatsApps your agency number. Any time, any day.</p>
+    </div>
+    <div class="step reveal" style="transition-delay:0.2s">
+      <div class="step-num">2</div>
+      <h3>AI Qualifies in 60 Seconds</h3>
+      <p>The AI assistant collects budget, location, property type, timeline, name, and email — through natural conversation. Budget confirmed in AED. No guessing.</p>
+    </div>
+    <div class="step reveal" style="transition-delay:0.4s">
+      <div class="step-num">3</div>
+      <h3>Viewing Booked, Agent Notified</h3>
+      <p>Matching properties are shown. The prospect picks one and books a slot. Your agent gets an instant Telegram notification with the full lead profile.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features">
+  <div class="section-label">What You Get</div>
+  <h2>Everything your agency<br>needs to close faster.</h2>
+  <div class="features-grid">
+    <div class="feature-card reveal" style="transition-delay:0s">
+      <div class="feature-icon">💬</div>
+      <h3>WhatsApp Lead Qualifier</h3>
+      <p>Handles the first conversation automatically. Collects name, email, budget, location, and timeline. Speaks English and Arabic. Responds in the prospect's own language.</p>
+      <span class="feature-tag">LIVE 24/7</span>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.1s">
+      <div class="feature-icon">🏠</div>
+      <h3>Property Matching Engine</h3>
+      <p>Shows prospects 3 listings that match their exact budget and criteria — before asking for a viewing. Sets correct expectations. Filters out time-wasters before they reach your agents.</p>
+      <span class="feature-tag">BUDGET-FIRST</span>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.2s">
+      <div class="feature-icon">📅</div>
+      <h3>Instant Viewing Scheduler</h3>
+      <p>Offers available slots and confirms the booking — all within the WhatsApp conversation. No back-and-forth, no dropped calls. Viewing confirmed in under 4 minutes.</p>
+      <span class="feature-tag">AUTO-BOOK</span>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.3s">
+      <div class="feature-icon">📊</div>
+      <h3>Lead CRM — Google Sheets</h3>
+      <p>Every qualified lead is saved automatically to a live Google Sheet with full details: name, email, budget, timeline, property chosen. Open it on any device in real time.</p>
+      <span class="feature-tag">REAL-TIME</span>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.4s">
+      <div class="feature-icon">📲</div>
+      <h3>Instant Agent Alerts</h3>
+      <p>When a viewing is booked, your agent gets a Telegram notification with the full lead profile — name, email, budget, property reference, and viewing time. Ready to close.</p>
+      <span class="feature-tag">TELEGRAM</span>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.5s">
+      <div class="feature-icon">🌐</div>
+      <h3>Arabic & English Native</h3>
+      <p>Detects the language automatically. Replies in Gulf Arabic for Arabic-speaking prospects, English for international buyers. No setup required — it just works.</p>
+      <span class="feature-tag">BILINGUAL</span>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section id="pricing">
+  <div class="section-label" style="text-align:center">Pricing</div>
+  <h2>Three ways to work<br>together.</h2>
+  <p class="section-sub">Start with zero risk. Scale at your own pace. No contracts, no lock-in.</p>
+  <div class="pricing-grid">
+
+    <!-- Option 1 -->
+    <div class="pricing-card reveal" style="transition-delay:0s">
+      <div class="pricing-label">Try It First</div>
+      <div class="pricing-title">2-Week Trial</div>
+      <div class="pricing-desc">Live system, real leads, zero strings. See results before you commit to anything.</div>
+      <div class="pricing-amount"><sup>AED</sup> 1,500 <span>/ 2 weeks</span></div>
+      <hr class="pricing-divider" />
+      <ul class="pricing-items">
+        <li>Full AI lead qualifier running on your WhatsApp</li>
+        <li>Property matching up to 20 listings</li>
+        <li>Viewing scheduler + Telegram agent alerts</li>
+        <li>Live lead CRM in Google Sheets</li>
+        <li>Arabic + English, 24/7</li>
+        <li>AED 1,500 credited to Month 1 if you continue</li>
+        <li>No contract. Stop anytime.</li>
+      </ul>
+      <a href="https://calendly.com/aeasyihub/30min" class="btn-pricing btn-pricing-outline" target="_blank">Start the Trial</a>
+      <p style="text-align:center;font-size:12px;color:var(--sub);margin-top:14px">Then AED 1,500/month — we run everything</p>
+    </div>
+
+    <!-- Option 2 — Featured -->
+    <div class="pricing-card featured reveal" style="transition-delay:0.15s">
+      <div class="pricing-label">Most Chosen</div>
+      <div class="pricing-title">Build + Maintain</div>
+      <div class="pricing-desc">We build it, we run it, we maintain it. You focus on closing deals.</div>
+      <div class="pricing-amount"><sup>AED</sup> 8,000 <span>build</span></div>
+      <div style="margin-top:10px;font-size:15px;color:var(--gold-light);font-weight:500">+ AED 600 / month — we run everything</div>
+      <hr class="pricing-divider" />
+      <ul class="pricing-items">
+        <li>Custom build for your agency — your branding, your listings</li>
+        <li>Connected to your WhatsApp Business number</li>
+        <li>Unlimited property listings in the database</li>
+        <li>Multi-agent routing (up to 5 agents)</li>
+        <li>Monthly property database updates</li>
+        <li>Bug fixes, monitoring, uptime guarantee</li>
+        <li>Monthly performance report + strategy call</li>
+      </ul>
+      <a href="https://calendly.com/aeasyihub/30min" class="btn-pricing btn-pricing-solid" target="_blank">Get Started</a>
+      <p style="text-align:center;font-size:12px;color:var(--sub);margin-top:14px">Then AED 600/month — we handle everything</p>
+    </div>
+
+    <!-- Option 3 -->
+    <div class="pricing-card reveal" style="transition-delay:0.3s">
+      <div class="pricing-label">Own It</div>
+      <div class="pricing-title">Build + Handover</div>
+      <div class="pricing-desc">We build it, train your team, and hand over full ownership. You run it independently.</div>
+      <div class="pricing-amount"><sup>AED</sup> 12,000 <span>one-time</span></div>
+      <hr class="pricing-divider" />
+      <ul class="pricing-items">
+        <li>Everything in Build + Maintain</li>
+        <li>Full source code ownership</li>
+        <li>2-day team training session</li>
+        <li>Complete documentation</li>
+        <li>30-day post-handover support included</li>
+        <li>No monthly fees — ever</li>
+        <li>Deploy on your own infrastructure</li>
+      </ul>
+      <a href="https://calendly.com/aeasyihub/30min" class="btn-pricing btn-pricing-outline" target="_blank">Book a Call</a>
+      <p style="text-align:center;font-size:12px;color:var(--sub);margin-top:14px">No recurring costs after handover</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-box reveal">
+    <div class="section-label">Ready?</div>
+    <h2>See it live in<br><span style="color:var(--gold)">10 minutes.</span></h2>
+    <p>We'll run the live demo on your phone — you'll see the qualification, the property match, the booking, and the Telegram alert land in real time. Then we'll talk about which option fits your agency. No slides. No pressure.</p>
+    <a href="https://calendly.com/aeasyihub/30min" class="btn-primary" target="_blank" style="font-size:17px;padding:18px 48px">Book Your Free Demo</a>
+    <p class="cta-sub">30-minute call. Live demo on your phone. Start the 2-week trial same day if you want.</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="logo">AEasyI</div>
+  <p>AI Automation for Dubai Real Estate · aeasyihub@gmail.com</p>
+</footer>
+
+<!-- ═══════════════════════════════════════════════ JS ══ -->
+<script>
+/* ── Three.js background ─────────────────────── */
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 80;
+
+  // Particle grid
+  const count = 1800;
+  const positions = new Float32Array(count * 3);
+  const spread = 200;
+  for (let i = 0; i < count; i++) {
+    positions[i * 3]     = (Math.random() - 0.5) * spread;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * spread;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 60;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const mat = new THREE.PointsMaterial({ color: 0xC9A84C, size: 0.4, transparent: true, opacity: 0.5 });
+  const points = new THREE.Points(geo, mat);
+  scene.add(points);
+
+  // Connecting lines (sparse grid)
+  const lineMat = new THREE.LineBasicMaterial({ color: 0xC9A84C, transparent: true, opacity: 0.06 });
+  for (let i = 0; i < 40; i++) {
+    const lGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3((Math.random() - 0.5) * spread, (Math.random() - 0.5) * spread, 0),
+      new THREE.Vector3((Math.random() - 0.5) * spread, (Math.random() - 0.5) * spread, 0),
+    ]);
+    scene.add(new THREE.Line(lGeo, lineMat));
+  }
+
+  let mouse = { x: 0, y: 0 };
+  window.addEventListener('mousemove', e => {
+    mouse.x = (e.clientX / window.innerWidth - 0.5) * 0.3;
+    mouse.y = (e.clientY / window.innerHeight - 0.5) * 0.3;
+  });
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  (function animate() {
+    requestAnimationFrame(animate);
+    const t = Date.now() * 0.0003;
+    points.rotation.y = t * 0.08 + mouse.x;
+    points.rotation.x = t * 0.04 + mouse.y;
+    renderer.render(scene, camera);
+  })();
+})();
+
+/* ── WhatsApp chat animation ─────────────────── */
+(function() {
+  const chat = document.getElementById('chat');
+  const conversation = [
+    { type: 'user',  text: 'Hi, looking for 2BR in Dubai Marina, budget 130k' },
+    { type: 'bot',   text: 'Welcome! Happy to help. May I start with your name?' },
+    { type: 'user',  text: 'Ahmed Al Mansouri' },
+    { type: 'bot',   text: 'Great to meet you, Ahmed! Is this for rent or purchase?' },
+    { type: 'user',  text: 'Rent' },
+    { type: 'bot',   text: 'And when are you looking to move in?' },
+    { type: 'user',  text: 'Within 2 months' },
+    { type: 'bot',   text: 'Perfect. What email should I send the confirmation to?' },
+    { type: 'user',  text: 'ahmed@email.com' },
+    { type: 'bot',   text: 'Here are your top matches — all within AED 130,000:\n\n🏢 Princess Tower — 2BR, AED 125k/yr\n🏢 Cayan Tower — 2BR, AED 128k/yr\n🏢 Marina Gate — 2BR, AED 130k/yr\n\nWhich would you like to view? Reply 1, 2, or 3.' },
+    { type: 'user',  text: '2' },
+    { type: 'bot',   text: '✅ Viewing confirmed — Cayan Tower\nTuesday 8 July at 10:00 AM\nAhmed will WhatsApp you with the address!' },
+  ];
+
+  let idx = 0;
+
+  function addBubble(msg, callback) {
+    // Show typing indicator first for bot
+    let typing = null;
+    if (msg.type === 'bot') {
+      typing = document.createElement('div');
+      typing.className = 'typing';
+      typing.innerHTML = '<span></span><span></span><span></span>';
+      chat.appendChild(typing);
+      chat.scrollTop = chat.scrollHeight;
+      setTimeout(() => { typing.classList.add('visible'); }, 50);
+    }
+
+    const delay = msg.type === 'bot' ? 1400 : 600;
+    setTimeout(() => {
+      if (typing) {
+        typing.classList.remove('visible');
+        setTimeout(() => typing.remove(), 300);
+      }
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = `bubble ${msg.type}`;
+        el.style.whiteSpace = 'pre-wrap';
+        el.innerHTML = msg.text + (msg.type === 'user' ? ' <span class="tick">✓✓</span>' : '');
+        chat.appendChild(el);
+        chat.scrollTop = chat.scrollHeight;
+        setTimeout(() => el.classList.add('visible'), 20);
+        if (callback) setTimeout(callback, msg.type === 'bot' ? 800 : 400);
+      }, msg.type === 'bot' ? 300 : 0);
+    }, delay);
+  }
+
+  function runConversation() {
+    chat.innerHTML = '';
+    idx = 0;
+    function next() {
+      if (idx >= conversation.length) {
+        // Pause then restart
+        setTimeout(() => runConversation(), 3000);
+        return;
+      }
+      addBubble(conversation[idx++], next);
+    }
+    next();
+  }
+
+  // Start after 1.5s
+  setTimeout(runConversation, 1500);
+})();
+
+/* ── Scroll reveal ───────────────────────────── */
+(function() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => obs.observe(el));
+})();
+
+/* ── Counter animation ───────────────────────── */
+(function() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      const target = parseInt(el.dataset.target);
+      const prefix = el.dataset.prefix || '';
+      const suffix = el.dataset.suffix || '';
+      let current = 0;
+      const step = target / 60;
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = prefix + Math.floor(current).toLocaleString() + suffix;
+        if (current >= target) clearInterval(timer);
+      }, 16);
+      obs.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('[data-target]').forEach(el => obs.observe(el));
+})();
+</script>
+</body>
+</html>
